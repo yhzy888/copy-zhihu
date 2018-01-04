@@ -1,0 +1,13 @@
+{
+  "pages":[
+    "pages/index/index",
+    "pages/logs/logs"
+  ],
+  "window":{
+    "backgroundTextStyle":"light",
+    "navigationBarBackgroundColor": "#0068C4",
+    "navigationBarTitleText": "仿知乎",
+    "navigationBarTextStyle":"#ffffff",
+    "enablePullDownRefresh":true
+  }
+}
