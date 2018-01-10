@@ -1,54 +1,89 @@
 //index.js
 //获取应用实例
-const app = getApp()
-
+var util = require("../../utils/util.js");
+const app = getApp();
 Page({
+
+  /**
+   * 页面的初始数据
+   */
   data: {
-    motto: 'Hello World',
-    userInfo: {},
-    hasUserInfo: false,
-    canIUse: wx.canIUse('button.open-type.getUserInfo')
+    feed : [],
+    feed_length : 0
   },
-  //事件处理函数
-  bindViewTap: function() {
+  /**
+   * 事件处理函数
+  */
+  bindItemTab:function(){
+    /**
+     * 点击问题icon时，页面的跳转
+    */
     wx.navigateTo({
-      url: '../logs/logs'
+      url: '../answer/answer'
     })
   },
-  onLoad: function () {
-    if (app.globalData.userInfo) {
-      this.setData({
-        userInfo: app.globalData.userInfo,
-        hasUserInfo: true
-      })
-    } else if (this.data.canIUse){
-      // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-      // 所以此处加入 callback 以防止这种情况
-      app.userInfoReadyCallback = res => {
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true
-        })
-      }
-    } else {
-      // 在没有 open-type=getUserInfo 版本的兼容处理
-      wx.getUserInfo({
-        success: res => {
-          app.globalData.userInfo = res.userInfo
-          this.setData({
-            userInfo: res.userInfo,
-            hasUserInfo: true
-          })
-        }
-      })
-    }
+  bindQueTab:function(){
+    wx.navigateTo({
+      url: '../question/question'
+    })
   },
-  getUserInfo: function(e) {
-    console.log(e)
-    app.globalData.userInfo = e.detail.userInfo
+
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+    console.log("加载");
+    var that = this;
+    //调用应用实例的方法获取全局数据
+    this.refresh();
+  },
+  upper:function(){
+    //设置在导航条上显示Loading加载状态,对应的hide是隐藏
+    wx.showNavigationBarLoading();
+    this.refresh();
+    console.log("upper");
+    setTimeout(function(){
+      //隐藏导航条的loading加载状态
+      wx.hideNavigationBarLoading();
+      //停止下拉刷新
+      wx.stopPullDownRefresh();
+    },2000);
+  },
+  lower:function(e){
+    wx.showNavigationBarLoading();
+    var that = this;//因为settimeout后this的指向就不对了，所以在此保存
+    setTimeout(function(){
+      wx.hideNavigationBarLoading();
+      that.nextLoad();
+      console.log("lower");
+    },1000);
+  },
+  refresh0:function(){
+    var index_api = "";
+    util.getData(index_api).then(function(data){
+      console.log(data);
+    })
+  },
+  refresh:function(){
+    //使用本地fake数据实现刷新效果
+    var feed = util.getData2();
+    console.log("loaddata");
+    var feed_data = feed.data;
     this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true
-    })
+      feed:feed_data,
+      feed_length:feed_data.length
+    });
+  },
+  nextLoad:function(){
+    //使用本地fake数据实现继续加载效果
+    var next = util.getNext();
+    console.log("continueloaded");
+    var next_data = next.data;
+    this.setData({
+      feed:this.data.feed.concat(next_data),
+      feed_length:this.data.feed_length + next_data.length
+
+    });
   }
 })
+
